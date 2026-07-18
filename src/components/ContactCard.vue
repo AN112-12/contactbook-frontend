@@ -24,9 +24,17 @@ export default {
       {{ contact.phone }}
     </div>
     <div class="p-1">
-      <strong>Liên hệ yêu thích:&nbsp;</strong>
-      <i v-if="contact.favorite" class="fas fa-check"></i>
-      <i v-else class="fas fa-times"></i>
+      <strong>Sở thích:&nbsp;</strong>
+      <span v-if="contact.hobbies && contact.hobbies.length > 0">
+        <span
+          v-for="hobby in contact.hobbies"
+          :key="hobby"
+          class="badge badge-info mr-1"
+        >
+          {{ hobby }}
+        </span>
+      </span>
+      <span v-else class="text-muted">Chưa có sở thích nào.</span>
     </div>
   </div>
 </template>

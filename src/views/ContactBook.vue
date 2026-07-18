@@ -8,6 +8,25 @@
         Danh bạ
         <i class="fas fa-address-book"></i>
       </h4>
+
+      <div class="mb-3">
+        <label class="mb-1"><strong>Lọc theo sở thích:</strong></label>
+        <div class="hobby-filter-list">
+          <div class="form-check" v-for="hobby in hobbyOptions" :key="hobby">
+            <input
+              type="checkbox"
+              class="form-check-input"
+              :id="'filter-' + hobby"
+              :value="hobby"
+              v-model="selectedHobbies"
+            />
+            <label class="form-check-label" :for="'filter-' + hobby">
+              {{ hobby }}
+            </label>
+          </div>
+        </div>
+      </div>
+
       <ContactList
         v-if="filteredContactsCount > 0"
         :contacts="filteredContacts"
@@ -58,18 +77,32 @@ export default {
     InputSearch,
     ContactList,
   },
-  // Đoạn mã xử lý đầy đủ sẽ trình bày bên dưới
   data() {
     return {
       contacts: [],
       activeIndex: -1,
       searchText: "",
+      // Danh sách sở thích dùng để lọc - đang chọn sở thích nào thì lọc theo sở thích đó
+      hobbyOptions: [
+        "Đọc sách",
+        "Du lịch",
+        "Thể thao",
+        "Âm nhạc",
+        "Nấu ăn",
+        "Chơi game",
+        "Xem phim",
+        "Nhiếp ảnh",
+      ],
+      selectedHobbies: [],
     };
   },
   watch: {
     // Giám sát các thay đổi của biến searchText.
     // Bỏ chọn phần tử đang được chọn trong danh sách.
     searchText() {
+      this.activeIndex = -1;
+    },
+    selectedHobbies() {
       this.activeIndex = -1;
     },
   },
@@ -81,12 +114,25 @@ export default {
         return [name, email, address, phone].join("");
       });
     },
-    // Trả về các contact có chứa thông tin cần tìm kiếm.
+    // Trả về các contact có chứa thông tin cần tìm kiếm, có áp dụng lọc theo sở thích.
+    // Liên hệ được giữ lại nếu có ÍT NHẤT MỘT sở thích trùng với sở thích đang chọn lọc.
     filteredContacts() {
-      if (!this.searchText) return this.contacts;
-      return this.contacts.filter((_contact, index) =>
-        this.contactStrings[index].includes(this.searchText),
-      );
+      let result = this.contacts;
+
+      if (this.selectedHobbies.length > 0) {
+        result = result.filter((contact) => {
+          const contactHobbies = contact.hobbies || [];
+          return this.selectedHobbies.some((h) => contactHobbies.includes(h));
+        });
+      }
+
+      if (!this.searchText) return result;
+
+      return result.filter((contact) => {
+        const { name, email, address, phone } = contact;
+        const contactString = [name, email, address, phone].join("");
+        return contactString.includes(this.searchText);
+      });
     },
     activeContact() {
       if (this.activeIndex < 0) return null;
@@ -131,5 +177,10 @@ export default {
 .page {
   text-align: left;
   max-width: 750px;
+}
+.hobby-filter-list {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px 12px;
 }
 </style>

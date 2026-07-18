@@ -48,18 +48,29 @@
 
       <ErrorMessage name="phone" class="error-feedback" />
     </div>
-    <div class="form-group form-check">
-      <input
-        name="favorite"
-        type="checkbox"
-        class="form-check-input"
-        v-model="contactLocal.favorite"
-      />
 
-      <label for="favorite" class="form-check-label">
-        <strong>Liên hệ yêu thích</strong>
-      </label>
+    <div class="form-group">
+      <label>Sở thích</label>
+      <div class="hobby-list">
+        <div
+          class="form-check"
+          v-for="hobby in hobbyOptions"
+          :key="hobby"
+        >
+          <input
+            type="checkbox"
+            class="form-check-input"
+            :id="'hobby-' + hobby"
+            :value="hobby"
+            v-model="contactLocal.hobbies"
+          />
+          <label class="form-check-label" :for="'hobby-' + hobby">
+            {{ hobby }}
+          </label>
+        </div>
+      </div>
     </div>
+
     <div class="form-group">
       <button class="btn btn-primary">Lưu</button>
       <button
@@ -110,11 +121,28 @@ export default {
         ),
     });
     return {
+      // Danh sách sở thích cố định để người dùng chọn (có thể chọn nhiều)
+      hobbyOptions: [
+        "Đọc sách",
+        "Du lịch",
+        "Thể thao",
+        "Âm nhạc",
+        "Nấu ăn",
+        "Chơi game",
+        "Xem phim",
+        "Nhiếp ảnh",
+      ],
       // Chúng ta sẽ không muốn hiệu chỉnh props, nên tạo biến cục bộ
       // contactLocal để liên kết với các input trên form
       contactLocal: this.contact,
       contactFormSchema,
     };
+  },
+  created() {
+    // Đảm bảo hobbies luôn là mảng, kể cả khi contact chưa có field này
+    if (!Array.isArray(this.contactLocal.hobbies)) {
+      this.contactLocal.hobbies = [];
+    }
   },
   methods: {
     submitContact() {
@@ -139,4 +167,10 @@ export default {
 
 <style scoped>
 @import "@/assets/form.css";
+
+.hobby-list {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px 12px;
+}
 </style>
